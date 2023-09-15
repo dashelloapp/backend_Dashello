@@ -1,6 +1,6 @@
 import express, { NextFunction, Request, Response } from 'express'
 import morgan from 'morgan';
-// import { db } from './models';
+import userRoutes from './routes/userRoutes'
 
 const app = express();
 
@@ -13,6 +13,7 @@ app.use(express.urlencoded({extended: true}));
 const cors = require('cors');
 app.use(cors());
 
+app.use("/api/user", userRoutes)
 app.use("/", (req, res, next) => {
     console.log(`
     __________REQUEST INFO__________

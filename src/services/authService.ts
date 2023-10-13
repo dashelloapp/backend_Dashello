@@ -1,11 +1,11 @@
 import { Request } from 'express';
 import jwt from 'jsonwebtoken';
-import { User } from '../models/user';
+import { user } from '../models/user';
 
 
 const secret = 'Ello Dashing';
 
-export const signUserToken = async (user: User) => {
+export const signUserToken = async (user: user) => {
   let token = jwt.sign(
       { userId: user.userId },
       secret,
@@ -26,7 +26,7 @@ export const verifyUser = async (req: Request) => {
       // Verify the token and get the user
       try {
           let decoded: any = await jwt.verify(token, secret);
-          return User.findByPk(decoded.userId);
+          return user.findByPk(decoded.userId);
       }
       catch (err) {
           return null;

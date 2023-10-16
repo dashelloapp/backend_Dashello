@@ -1,4 +1,6 @@
 import { Sequelize } from "sequelize";
+import { userFactory } from "./user";
+import { AssociateUserOrganization } from "./organization";
 
 const dbName = '';
 const username = '';
@@ -9,5 +11,8 @@ const sequelize = new Sequelize(dbName, username, password, {
     port: 3306,
     dialect: 'mysql'
 });
+
+userFactory(sequelize)
+AssociateUserOrganization()
 
 export const db = sequelize;

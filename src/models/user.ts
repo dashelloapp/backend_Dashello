@@ -66,6 +66,6 @@ export function userFactory(sequelize: Sequelize) {
 }
 
 export function AssociateUserOrganization() {
-    organization.hasMany(user, { foreignKey: "organizationId" });
     user.belongsTo(organization, { foreignKey: "organizationId" });
+    organization.hasMany(user, { foreignKey: "organizationId" });
 }

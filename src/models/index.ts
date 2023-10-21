@@ -1,10 +1,10 @@
 import { Sequelize } from "sequelize";
-import { AssociateUserOrganization } from "./user";
-import {organizationFactory } from "./organization";
+import { organizationFactory } from "./organization";
+import { AssociateUserOrganization, userFactory } from "./user";
 
-const dbName = '';
-const username = '';
-const password = '';
+const dbName = 'dashello';
+const username = 'root';
+const password = '0624';
 
 const sequelize = new Sequelize(dbName, username, password, {
     host: 'localhost',
@@ -13,6 +13,7 @@ const sequelize = new Sequelize(dbName, username, password, {
 });
 
 organizationFactory(sequelize)
+userFactory(sequelize)
 AssociateUserOrganization()
 
 export const db = sequelize;

@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyToken = exports.verifyUser = exports.signUserToken = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const user_1 = require("../models/user");
+// need organization id to be verified.
 const secret = 'Ello Dashing';
 const signUserToken = async (user) => {
     let token = jsonwebtoken_1.default.sign({ userId: user.userId }, secret, { expiresIn: '1hr' });
@@ -21,7 +22,7 @@ const verifyUser = async (req) => {
         // Verify the token and get the user
         try {
             let decoded = await jsonwebtoken_1.default.verify(token, secret);
-            return user_1.User.findByPk(decoded.userId);
+            return user_1.user.findByPk(decoded.userId);
         }
         catch (err) {
             return null;

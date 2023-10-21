@@ -10,7 +10,8 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
 
-const cors = require('cors');
+import cors from 'cors';
+import { db } from './models';
 //Do we need whitelist?
 app.use(cors());
 
@@ -28,8 +29,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 // Syncing our database
-// db.sync().then(() => {
-//     console.info("connected to the database!")
-// });
+db.sync().then(() => {
+    console.info("connected to the database!")
+});
 
 app.listen(3001);

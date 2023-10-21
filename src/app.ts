@@ -11,6 +11,7 @@ app.use(express.urlencoded({extended: true}));
 
 
 const cors = require('cors');
+//Do we need whitelist?
 app.use(cors());
 
 app.use("/api/user", userRoutes)

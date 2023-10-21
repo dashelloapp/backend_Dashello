@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize";
-import { userFactory } from "./user";
-import { AssociateUserOrganization } from "./organization";
+import { AssociateUserOrganization } from "./user";
+import {organizationFactory } from "./organization";
 
 const dbName = '';
 const username = '';
@@ -12,7 +12,7 @@ const sequelize = new Sequelize(dbName, username, password, {
     dialect: 'mysql'
 });
 
-userFactory(sequelize)
+organizationFactory(sequelize)
 AssociateUserOrganization()
 
 export const db = sequelize;

@@ -6,10 +6,10 @@ export class organization extends Model<InferAttributes<organization>, InferCrea
     declare organization: string;
     declare billing_address: string;
     declare mailing_address: string;
-    declare userId: number;
     declare card_information: string;
     declare membership_plan: string;
     declare metricId: number;
+  
 }
 
 export function organizationFactory(sequelize: Sequelize) {
@@ -34,10 +34,7 @@ export function organizationFactory(sequelize: Sequelize) {
             type: DataTypes.JSON,
             allowNull: false,
         },
-        userId: {
-            type: DataTypes.NUMBER,
-            allowNull: false,
-        },
+       
         card_information: {
             type: DataTypes.JSON,
             allowNull: false,
@@ -59,10 +56,10 @@ export function organizationFactory(sequelize: Sequelize) {
         })
 }
 
-export function AssociateUserOrganization() {
-    organization.hasMany(user, { foreignKey: "userId" });
-    user.belongsTo(organization, { foreignKey: "userId" });
-}
+// export function AssociateUserOrganization() {
+//     organization.hasMany(user, { foreignKey: "userId" });
+//     user.belongsTo(organization, { foreignKey: "userId" });
+// }
 
 // Need Metric Model
 // export function AssociateMetricOrganization() {

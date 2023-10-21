@@ -1,7 +1,12 @@
-import { DataTypes, InferAttributes, InferCreationAttributes, Model, Sequelize } from "sequelize";
+import { BelongsTo, DataTypes, InferAttributes, InferCreationAttributes, Model, Sequelize } from "sequelize";
+import { organization } from "./organization";
+import { Role } from "./role";
+
 
 export class user extends Model<InferAttributes<user>, InferCreationAttributes<user>>{
     declare userId: number;
+    declare organizationId: number;
+    declare roleID: number;
     declare email: string;
     declare password: string;
     declare firstName: string;
@@ -10,6 +15,8 @@ export class user extends Model<InferAttributes<user>, InferCreationAttributes<u
     declare profilePicture: string;
 }
 
+
+
 export function userFactory(sequelize: Sequelize) {
     user.init({
         userId: {
@@ -17,6 +24,15 @@ export function userFactory(sequelize: Sequelize) {
             autoIncrement: true,
             primaryKey: true,
             allowNull: false
+        },
+        organizationId: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        roleID: {
+            type:DataTypes.INTEGER,
+            allowNull: false
+
         },
         email: {
             type: DataTypes.STRING,
@@ -51,4 +67,10 @@ export function userFactory(sequelize: Sequelize) {
             sequelize,
             collate: 'utf8_general_ci',
         })
+}
+
+export function AssociateUserOrganization() {
+    organization.hasMany(user, { foreignKey: "organizationId" });
+    Role.belongsTo(user,{ foreignKey: "roleId"});
+    user.belongsTo(organization, { foreignKey: "organizationId" });
 }

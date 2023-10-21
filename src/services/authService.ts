@@ -2,6 +2,7 @@ import { Request } from 'express';
 import jwt from 'jsonwebtoken';
 import { user } from '../models/user';
 
+// need organization id to be verified.
 
 const secret = 'Ello Dashing';
 

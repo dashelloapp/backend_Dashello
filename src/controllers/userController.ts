@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import { user } from "../models/user";
 import { comparePasswords, hashPassword } from "../services/auth";
 import { signUserToken, verifyUser } from "../services/authService";
+import { organization } from "../models/organization";
 
 export const getUser: RequestHandler = async (req, res, next) => {
     let usr = await verifyUser(req)
@@ -25,10 +26,86 @@ export const getallUsers: RequestHandler = async (req, res, next) => {
     }
 };
 
+export const createUserAndOrg: RequestHandler = async (req, res, next) => {
+    
+    let newUser: user = req.body.user;
+    let newOrganization: organization = req.body.organization;
+
+    //Creating organization & user
+        let createdOrg = undefined
+        if (newOrganization.organization && newOrganization.billing_address && newOrganization.mailing_address && newOrganization.membership_plan) {
+            
+            //Stringifying all JSON objects
+            try {
+                if (typeof newOrganization.billing_address !== "string") {
+                    newOrganization.billing_address = JSON.stringify(newOrganization.billing_address)
+                }
+                if (typeof newOrganization.mailing_address !== "string") {
+                    newOrganization.mailing_address = JSON.stringify(newOrganization.mailing_address)
+                }
+                if (newOrganization.card_information) {
+                    if (typeof newOrganization.card_information !== "string") {
+                        newOrganization.card_information = JSON.stringify(newOrganization.card_information)
+                    }
+                }
+                if (newOrganization.membership_plan) {
+                    if (typeof newOrganization.membership_plan !== "string") {
+                        newOrganization.membership_plan = JSON.stringify(newOrganization.membership_plan)
+                    }
+                }
+            } catch {
+                res.status(500).send("Error parsing JSON data for organization")
+            }
+
+            //Create the organization
+            createdOrg = await organization.create(newOrganization)
+            
+            if (createdOrg) {
+                try {
+                    if (newUser.email && newUser.password && newUser.firstName && newUser.lastName && newUser.userType) {
+                        let updatedOrg
+                        let hashedPassword = await hashPassword(newUser.password);
+                        newUser.password = hashedPassword;
+
+                        //When creating a user, it will automatically make the first user the owner, should this be changed?
+                        newUser.role = "owner"
+
+                        //userType can possibly be an admin user for overlooking the entire platform
+                        newUser.userType = "user"
+                        newUser.organizationId = createdOrg.organizationId
+                        let createdUser = await user.create(newUser);
+
+                        //If the user is created, update the organization to add the user to it's organizationUsers
+                        if (createdUser) {
+                            try {
+                                createdOrg.organizationUsers = JSON.stringify([createdUser.userId])
+                                updatedOrg = await organization.update(createdOrg, {where: {organizationId: createdOrg.organizationId}})
+                            } catch {
+                                res.status(500).send("Error setting userId in the organization")
+                            }
+                        }
+
+                        res.status(201).json({
+                            organization: updatedOrg,
+                            user: createdUser
+                        });
+                    }
+                    else {
+                        res.status(400).send('Missing feilds for the user');
+                    }
+                } catch {
+                    res.status(500).send("Error creating User")
+                }
+            } else {
+                res.status(500).send("Error creating organization")
+            }
+        }
+}
+
 export const createUser: RequestHandler = async (req, res, next) => {
     try {
         let newUser: user = req.body;
-        if (newUser.email && newUser.password) {
+        if (newUser.email && newUser.password && newUser.organizationId && newUser.firstName && newUser.lastName && newUser.userType) {
             let hashedPassword = await hashPassword(newUser.password);
             newUser.password = hashedPassword;
             let created = await user.create(newUser);

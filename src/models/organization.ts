@@ -4,7 +4,7 @@ import { user } from "./user";
 export class organization extends Model<InferAttributes<organization>, InferCreationAttributes<organization>>{
     declare organizationId: number;
     declare organization: string;
-    declare OrganizationUsers: string;
+    declare organizationUsers: string;
     declare billing_address: string;
     declare mailing_address: string;
     declare card_information: string;
@@ -24,12 +24,11 @@ export function organizationFactory(sequelize: Sequelize) {
         },
         organization: {
             type: DataTypes.STRING,
-            unique: false,
             allowNull: false,
         },
-        OrganizationUsers: {
+        organizationUsers: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
         //Users will be converted to an array to hold all of the organization's users.
         billing_address: {
@@ -49,7 +48,7 @@ export function organizationFactory(sequelize: Sequelize) {
         // }
         card_information: {
             type: DataTypes.JSON,
-            allowNull: false,
+            allowNull: true,
         },
         //Card information will be formatted like this
         // {

@@ -11,6 +11,7 @@ export class user extends Model<InferAttributes<user>, InferCreationAttributes<u
     declare lastName: string;
     declare userType: string;
     declare profilePicture: string;
+    declare twoFactorSecret: string;
 }
 
 
@@ -55,6 +56,10 @@ export function userFactory(sequelize: Sequelize) {
         profilePicture: {
             type: DataTypes.STRING,
             allowNull: true,
+        },
+        twoFactorSecret: {
+            type: DataTypes.JSON,
+            allowNull: false
         }
     },
         {

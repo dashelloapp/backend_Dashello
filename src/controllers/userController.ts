@@ -63,7 +63,6 @@ export const createUserAndOrg: RequestHandler = async (req, res, next) => {
             if (createdOrg) {
                 try {
                     if (newUser.email && newUser.password && newUser.firstName && newUser.lastName && newUser.userType) {
-                        let updatedOrg
                         let hashedPassword = await hashPassword(newUser.password);
                         newUser.password = hashedPassword;
 
@@ -72,23 +71,27 @@ export const createUserAndOrg: RequestHandler = async (req, res, next) => {
 
                         //userType can possibly be an admin user for overlooking the entire platform
                         newUser.userType = "user"
-                        newUser.organizationId = createdOrg.organizationId
+                        newUser.organizationId = createdOrg.dataValues.organizationId
                         let createdUser = await user.create(newUser);
 
                         //If the user is created, update the organization to add the user to it's organizationUsers
                         if (createdUser) {
                             try {
-                                createdOrg.organizationUsers = JSON.stringify([createdUser.userId])
-                                updatedOrg = await organization.update(createdOrg, {where: {organizationId: createdOrg.organizationId}})
+                                createdOrg.dataValues.organizationUsers = JSON.stringify([createdUser.userId])
+                                let updatedOrg = await organization.update(createdOrg.dataValues, {where: {organizationId: createdOrg.dataValues.organizationId}})
+                                let org = await organization.findByPk(createdOrg.dataValues.organizationId)
+                                if (updatedOrg) {
+                                    res.status(201).json({
+                                        organization: org,
+                                        user: createdUser
+                                    });
+                                }
                             } catch {
                                 res.status(500).send("Error setting userId in the organization")
                             }
                         }
 
-                        res.status(201).json({
-                            organization: updatedOrg,
-                            user: createdUser
-                        });
+                        
                     }
                     else {
                         res.status(400).send('Missing feilds for the user');

@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { user } from "../models/user";
-import { comparePasswords, hashPassword } from "../services/auth";
+import { comparePasswords, hashPassword, verifyTwoFactor } from "../services/auth";
 import { signUserToken, verifyUser } from "../services/authService";
 import { organization } from "../models/organization";
 import speakeasy from 'speakeasy';
@@ -85,7 +85,7 @@ export const createUserAndOrg: RequestHandler = async (req, res, next) => {
                             createdOrg.dataValues.organizationUsers = JSON.stringify([createdUser.userId])
                             let updatedOrg = await organization.update(createdOrg.dataValues, { where: { organizationId: createdOrg.dataValues.organizationId } })
                             let org = await organization.findByPk(createdOrg.dataValues.organizationId)
-                            
+
                             if (updatedOrg) {
                                 res.status(201).json({
                                     organization: org,
@@ -109,31 +109,8 @@ export const createUserAndOrg: RequestHandler = async (req, res, next) => {
         } else {
             res.status(500).send("Error creating organization")
         }
-    }
-}
-
-export const verifyTwoFactor: RequestHandler = async (req, res, next) => {
-    let userId = req.params.id
-    const token = req.body.token
-    try {
-        const usr = await user.findByPk(userId)
-        if (usr) {
-            const secret = JSON.parse(usr.twoFactorSecret).base32
-            
-            const verified = speakeasy.totp.verify({
-            secret,
-            encoding: "base32",
-            token
-            })
-            
-            if (verified) {
-                res.status(200).json({verified: true}) 
-            } else {
-                res.status(401).json({verified: false})
-            }
-        }
-    } catch (error) {
-        res.status(500).send(error)
+    } else {
+        res.status(400).send("Not enough information for the organization")
     }
 }
 
@@ -158,31 +135,41 @@ export const createUser: RequestHandler = async (req, res, next) => {
 }
 
 export const loginUser: RequestHandler = async (req, res, next) => {
-
     try {
-        // Look up user by their email
-        let existingUser: user | null = await user.findOne({
-            where: { email: req.body.email }
-        });
+        if (req.body.email && req.body.password && req.body.token) {
+            // Look up user by their email
+            let existingUser: user | null = await user.findOne({
+                where: { email: req.body.email }
+            });
 
-        // If user exists, check that password matches
-        if (existingUser) {
-            let passwordsMatch = await comparePasswords(req.body.password, existingUser.password);
+            // If user exists, check that password matches
+            if (existingUser) {
+                let passwordsMatch = await comparePasswords(req.body.password, existingUser.password);
 
-            // If passwords match, create a JWT
-            if (passwordsMatch) {
-                let token = await signUserToken(existingUser);
-                res.status(200).json(token);
+                // If passwords match, verify 2FA token
+                if (passwordsMatch) {
+                    let verified = await verifyTwoFactor(req.body.token, existingUser.userId)
+
+                    //If 2FA token is verified, return the JWT token
+                    if (verified) {
+                        let token = await signUserToken(existingUser);
+                        res.status(200).send(token)
+                    } else {
+                        res.status(401).send("Invalid 2FA code")
+                    }
+                }
+                else {
+                    res.status(401).send('Invalid password');
+                }
             }
             else {
-                res.status(401).json('Invalid password');
+                res.status(401).send('Invalid email');
             }
+        } else {
+            res.status(400).send("password, email and 2FA token reqired")
         }
-        else {
-            res.status(401).json('Invalid email');
-        }
-    } catch {
-        res.status(500).send()
+    } catch (error) {
+        res.status(500).send(error)
     }
 }
 

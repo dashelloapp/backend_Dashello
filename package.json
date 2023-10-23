@@ -39,6 +39,6 @@
     "passport": "^0.6.0",
     "sequelize": "^6.33.0",
     "speakeasy": "^2.0.0",
-    "types": "file:../../../../../../cors"
+    "types": "file:../../../../../../speakeasy"
   }
 }

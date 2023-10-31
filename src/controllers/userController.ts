@@ -135,8 +135,10 @@ export const createUser: RequestHandler = async (req, res, next) => {
 }
 
 export const loginUser: RequestHandler = async (req, res, next) => {
+    console.log(req.body.token)
     try {
         if (req.body.email && req.body.password && req.body.token) {
+            console.log(req.body.token)
             // Look up user by their email
             let existingUser: user | null = await user.findOne({
                 where: { email: req.body.email }

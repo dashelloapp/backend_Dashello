@@ -5,13 +5,13 @@ export class organization extends Model<InferAttributes<organization>, InferCrea
     declare organizationId: number;
     declare organization: string;
     declare organizationUsers: string;
+    declare organizationType: string;
     declare billing_address: string;
     declare mailing_address: string;
     declare card_information: string;
     declare membership_plan: string;
     declare metricId: number;
-
-  
+    declare phone_number: string;
 }
 
 export function organizationFactory(sequelize: Sequelize) {
@@ -30,6 +30,10 @@ export function organizationFactory(sequelize: Sequelize) {
             type: DataTypes.STRING,
             allowNull: true,
         },
+        organizationType: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
         //Users will be converted to an array to hold all of the organization's users.
         billing_address: {
             type: DataTypes.JSON,
@@ -38,6 +42,10 @@ export function organizationFactory(sequelize: Sequelize) {
         mailing_address: {
             type: DataTypes.JSON,
             allowNull: false,
+        },
+        phone_number: {
+            type: DataTypes.STRING,
+            allowNull: true,
         },
         //billing and mailing address' will be formatted like this
         // {

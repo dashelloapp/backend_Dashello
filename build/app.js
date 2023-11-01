@@ -12,6 +12,12 @@ app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 const cors = require('cors');
 app.use(cors());
+
+//Process cookies from google
+app.use(express.json());
+app.use(cookieParser())
+
+
 app.use("/", (req, res, next) => {
     console.log(`
     __________REQUEST INFO__________

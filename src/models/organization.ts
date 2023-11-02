@@ -4,14 +4,14 @@ import { user } from "./user";
 export class organization extends Model<InferAttributes<organization>, InferCreationAttributes<organization>>{
     declare organizationId: number;
     declare organization: string;
-    declare users: string;
+    declare organizationUsers: string;
+    declare organizationType: string;
     declare billing_address: string;
     declare mailing_address: string;
     declare card_information: string;
     declare membership_plan: string;
     declare metricId: number;
-
-  
+    declare phone_number: string;
 }
 
 export function organizationFactory(sequelize: Sequelize) {
@@ -24,12 +24,15 @@ export function organizationFactory(sequelize: Sequelize) {
         },
         organization: {
             type: DataTypes.STRING,
-            unique: false,
             allowNull: false,
         },
-        users: {
+        organizationUsers: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
+        },
+        organizationType: {
+            type: DataTypes.STRING,
+            allowNull: false
         },
         //Users will be converted to an array to hold all of the organization's users.
         billing_address: {
@@ -40,6 +43,10 @@ export function organizationFactory(sequelize: Sequelize) {
             type: DataTypes.JSON,
             allowNull: false,
         },
+        phone_number: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
         //billing and mailing address' will be formatted like this
         // {
         //     street: "",
@@ -49,7 +56,7 @@ export function organizationFactory(sequelize: Sequelize) {
         // }
         card_information: {
             type: DataTypes.JSON,
-            allowNull: false,
+            allowNull: true,
         },
         //Card information will be formatted like this
         // {
@@ -63,7 +70,7 @@ export function organizationFactory(sequelize: Sequelize) {
             allowNull: true,
         },
         metricId: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             allowNull: true,
         },
     },

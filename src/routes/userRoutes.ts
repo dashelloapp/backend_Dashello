@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createUser, createUserAndOrg, getUser, getallUsers, loginUser, verify } from '../controllers/userController';
+import { createUser, createUserAndOrg, getUser, getallUsers, googleSignIn, loginUser, verify } from '../controllers/userController';
 
 const router = Router();
 
@@ -12,6 +12,7 @@ router.post('/register', createUserAndOrg);
 router.post('/add-user', createUser);
 
 router.post('/signin', loginUser);
+router.post('/google-signin', googleSignIn)
 
 
 export default router;

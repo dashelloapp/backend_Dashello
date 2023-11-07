@@ -4,6 +4,7 @@ import { comparePasswords, hashPassword, verifyTwoFactor } from "../services/aut
 import { signUserToken, verifyUser } from "../services/authService";
 import { organization } from "../models/organization";
 import speakeasy from 'speakeasy';
+import jwt, { sign } from 'jsonwebtoken';
 
 export const getUser: RequestHandler = async (req, res, next) => {
     let usr = await verifyUser(req)
@@ -169,6 +170,41 @@ export const loginUser: RequestHandler = async (req, res, next) => {
             }
         } else {
             res.status(400).send("password, email and 2FA token reqired")
+        }
+    } catch (error) {
+        res.status(500).send(error)
+    }
+}
+
+export const googleSignIn: RequestHandler = async (req, res, next) => {
+    try {
+        const googleResponce = req.body
+
+        //Decoding the google responce token from the google sign in
+        const decodedGoogleResponce: any = jwt.decode(googleResponce)
+        console.log(decodedGoogleResponce)
+
+
+        if (decodedGoogleResponce) {
+            //Seeing if there is a user's email that matches the google account
+            let usr = await user.findOne({ where: { email: decodedGoogleResponce.email } })
+
+            if (usr) {
+                //Checking if there is a profile picture for the user. If there isn't, take the one from the google account
+                if (!usr.profilePicture) {
+                    let newUser = usr
+                    newUser.profilePicture = decodedGoogleResponce.picture
+                    user.update(newUser, {where: {userId: usr.userId}})
+                }
+
+                //Creating token and sending it to the frontend
+                const dashelloToken = await signUserToken(usr)
+                res.status(200).send(dashelloToken)
+            } else {
+                res.status(400).send("No user with that email")
+            }
+        } else {
+            res.status(500).send("error decoding google token")
         }
     } catch (error) {
         res.status(500).send(error)

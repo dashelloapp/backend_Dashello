@@ -178,7 +178,7 @@ export const loginUser: RequestHandler = async (req, res, next) => {
 
 export const googleSignIn: RequestHandler = async (req, res, next) => {
     try {
-        const googleResponce = req.body
+        const googleResponce = req.body.token
 
         //Decoding the google responce token from the google sign in
         const decodedGoogleResponce: any = jwt.decode(googleResponce)
